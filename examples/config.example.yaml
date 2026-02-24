@@ -1,0 +1,33 @@
+# cz-revenue-telemetry example configuration
+#
+# This config pulls closed-won Opportunity revenue from Salesforce
+# and sends it to CloudZero as a unit metric stream.
+#
+# Credentials are referenced by environment variable name — never put
+# actual secrets in this file. See .env.example for the required vars.
+
+cloudzero:
+  api_key_env: CZ_API_KEY               # env var containing your CloudZero API key
+  stream_name: revenue-by-customer       # name of the telemetry stream in CloudZero
+  granularity: MONTHLY                   # DAILY or MONTHLY
+
+source:
+  type: salesforce
+  auth:
+    username_env: SF_USERNAME            # env var for Salesforce username
+    password_env: SF_PASSWORD            # env var for Salesforce password
+    security_token_env: SF_SECURITY_TOKEN  # env var for Salesforce security token
+    domain: login                        # "login" for prod, or your custom domain for sandboxes
+  query: >
+    SELECT Amount, CloseDate, Account.Name
+    FROM Opportunity
+    WHERE StageName = 'Closed Won'
+    AND CloseDate >= {start_date}
+    AND CloseDate <= {end_date}
+
+# mapping tells the tool which source fields map to the CloudZero telemetry record
+mapping:
+  timestamp_field: CloseDate             # source field for the record timestamp
+  value_field: Amount                    # source field for the revenue value
+  associated_cost:                       # dimension key -> source field
+    "custom:Customer": Account.Name      # each key becomes a CZ dimension

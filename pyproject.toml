@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cz-revenue-telemetry"
+version = "0.1.0"
+description = "Send revenue data from business systems to CloudZero unit metric telemetry"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "CloudZero"},
+]
+dependencies = [
+    "click>=8.0",
+    "httpx>=0.25",
+    "pydantic>=2.0",
+    "PyYAML>=6.0",
+    "simple-salesforce>=1.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.0",
+    "ruff>=0.1",
+    "mypy>=1.0",
+]
+
+[project.scripts]
+cz-revenue-telemetry = "cz_revenue_telemetry.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["cz_revenue_telemetry*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.9"
+strict = true

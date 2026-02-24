@@ -1,0 +1,30 @@
+# Example: Revenue by customer AND product
+#
+# Uses OpportunityLineItem to get product-level revenue detail.
+# Maps to two custom dimensions in CloudZero.
+
+cloudzero:
+  api_key_env: CZ_API_KEY
+  stream_name: revenue-by-customer-product
+  granularity: MONTHLY
+
+source:
+  type: salesforce
+  auth:
+    username_env: SF_USERNAME
+    password_env: SF_PASSWORD
+    security_token_env: SF_SECURITY_TOKEN
+    domain: login
+  query: >
+    SELECT TotalPrice, Opportunity.CloseDate, Opportunity.Account.Name, Product2.Name
+    FROM OpportunityLineItem
+    WHERE Opportunity.StageName = 'Closed Won'
+    AND Opportunity.CloseDate >= {start_date}
+    AND Opportunity.CloseDate <= {end_date}
+
+mapping:
+  timestamp_field: Opportunity.CloseDate
+  value_field: TotalPrice
+  associated_cost:
+    "custom:Customer": Opportunity.Account.Name
+    "custom:Product": Product2.Name
